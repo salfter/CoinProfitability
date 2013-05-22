@@ -28,12 +28,9 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.tbInterval = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.tbHashrate = new System.Windows.Forms.TextBox();
-            this.label3 = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.tbReward = new System.Windows.Forms.TextBox();
@@ -47,15 +44,9 @@
             this.label11 = new System.Windows.Forms.Label();
             this.label12 = new System.Windows.Forms.Label();
             this.tbIncomeBTC = new System.Windows.Forms.TextBox();
+            this.cbInterval = new System.Windows.Forms.ComboBox();
+            this.cbHashrateUnit = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
-            // 
-            // tbInterval
-            // 
-            this.tbInterval.Location = new System.Drawing.Point(100, 13);
-            this.tbInterval.Name = "tbInterval";
-            this.tbInterval.Size = new System.Drawing.Size(100, 20);
-            this.tbInterval.TabIndex = 0;
-            this.tbInterval.TextChanged += new System.EventHandler(this.tbInterval_TextChanged);
             // 
             // label1
             // 
@@ -80,26 +71,8 @@
             this.tbHashrate.Location = new System.Drawing.Point(100, 39);
             this.tbHashrate.Name = "tbHashrate";
             this.tbHashrate.Size = new System.Drawing.Size(100, 20);
-            this.tbHashrate.TabIndex = 2;
+            this.tbHashrate.TabIndex = 1;
             this.tbHashrate.TextChanged += new System.EventHandler(this.tbHashrate_TextChanged);
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(206, 16);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(12, 13);
-            this.label3.TabIndex = 4;
-            this.label3.Text = "s";
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(206, 42);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(25, 13);
-            this.label4.TabIndex = 5;
-            this.label4.Text = "H/s";
             // 
             // label5
             // 
@@ -124,7 +97,7 @@
             this.tbReward.Location = new System.Drawing.Point(100, 65);
             this.tbReward.Name = "tbReward";
             this.tbReward.Size = new System.Drawing.Size(100, 20);
-            this.tbReward.TabIndex = 6;
+            this.tbReward.TabIndex = 3;
             this.tbReward.TextChanged += new System.EventHandler(this.tbReward_TextChanged);
             // 
             // label7
@@ -141,7 +114,7 @@
             this.tbDifficulty.Location = new System.Drawing.Point(100, 91);
             this.tbDifficulty.Name = "tbDifficulty";
             this.tbDifficulty.Size = new System.Drawing.Size(100, 20);
-            this.tbDifficulty.TabIndex = 9;
+            this.tbDifficulty.TabIndex = 4;
             this.tbDifficulty.TextChanged += new System.EventHandler(this.tbDifficulty_TextChanged);
             // 
             // label8
@@ -167,7 +140,7 @@
             this.tbExchangeRate.Location = new System.Drawing.Point(100, 117);
             this.tbExchangeRate.Name = "tbExchangeRate";
             this.tbExchangeRate.Size = new System.Drawing.Size(100, 20);
-            this.tbExchangeRate.TabIndex = 11;
+            this.tbExchangeRate.TabIndex = 5;
             this.tbExchangeRate.TextChanged += new System.EventHandler(this.tbExchangeRate_TextChanged);
             // 
             // label10
@@ -217,11 +190,33 @@
             this.tbIncomeBTC.TabIndex = 17;
             this.tbIncomeBTC.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
+            // cbInterval
+            // 
+            this.cbInterval.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbInterval.FormattingEnabled = true;
+            this.cbInterval.Location = new System.Drawing.Point(100, 12);
+            this.cbInterval.Name = "cbInterval";
+            this.cbInterval.Size = new System.Drawing.Size(100, 21);
+            this.cbInterval.TabIndex = 0;
+            this.cbInterval.SelectedIndexChanged += new System.EventHandler(this.cbInterval_SelectedIndexChanged);
+            // 
+            // cbHashrateUnit
+            // 
+            this.cbHashrateUnit.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbHashrateUnit.FormattingEnabled = true;
+            this.cbHashrateUnit.Location = new System.Drawing.Point(206, 39);
+            this.cbHashrateUnit.Name = "cbHashrateUnit";
+            this.cbHashrateUnit.Size = new System.Drawing.Size(53, 21);
+            this.cbHashrateUnit.TabIndex = 2;
+            this.cbHashrateUnit.SelectedIndexChanged += new System.EventHandler(this.cbHashrateUnit_SelectedIndexChanged);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(254, 213);
+            this.ClientSize = new System.Drawing.Size(268, 213);
+            this.Controls.Add(this.cbHashrateUnit);
+            this.Controls.Add(this.cbInterval);
             this.Controls.Add(this.label12);
             this.Controls.Add(this.tbIncomeBTC);
             this.Controls.Add(this.label11);
@@ -235,14 +230,12 @@
             this.Controls.Add(this.label5);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.tbReward);
-            this.Controls.Add(this.label4);
-            this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.tbHashrate);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.tbInterval);
             this.Name = "Form1";
             this.Text = "Coin Profitability";
+            this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -250,12 +243,9 @@
 
         #endregion
 
-        private System.Windows.Forms.TextBox tbInterval;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox tbHashrate;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.TextBox tbReward;
@@ -269,6 +259,8 @@
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.Label label12;
         private System.Windows.Forms.TextBox tbIncomeBTC;
+        private System.Windows.Forms.ComboBox cbInterval;
+        private System.Windows.Forms.ComboBox cbHashrateUnit;
     }
 }
 

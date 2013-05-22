@@ -13,14 +13,24 @@ namespace CoinProfitability
 {
     public partial class Form1 : Form
     {
+        private class Item
+        {
+            public string Name;
+            public string Value;
+            public Item(string szName, string szValue)
+            {
+                Name=szName;
+                Value = szValue;
+            }
+            public override string ToString()
+            {
+                return Name;
+            }
+        }
+
         public Form1()
         {
             InitializeComponent();
-        }
-
-        private void tbInterval_TextChanged(object sender, EventArgs e)
-        {
-            OnChanged();
         }
 
         private void tbHashrate_TextChanged(object sender, EventArgs e)
@@ -47,8 +57,8 @@ namespace CoinProfitability
         {
             try
             {
-                BigInteger interval = new BigInteger(Convert.ToInt64(tbInterval.Text));
-                BigInteger hashrate = new BigInteger(Convert.ToInt64(tbHashrate.Text));
+                BigInteger interval = new BigInteger(Convert.ToInt64(((Item)(cbInterval.SelectedItem)).Value));
+                BigInteger hashrate = new BigInteger(Convert.ToInt64(tbHashrate.Text)) * Convert.ToInt64(((Item)(cbHashrateUnit.SelectedItem)).Value);
                 BigInteger reward = new BigInteger(Convert.ToInt64(tbReward.Text)) * 100000000;
                 decimal difficulty = Convert.ToDecimal(tbDifficulty.Text);
 
@@ -59,11 +69,37 @@ namespace CoinProfitability
 
                 if (tbExchangeRate.Text != "")
                     tbIncomeBTC.Text = (Convert.ToDecimal(tbExchangeRate.Text) * (decimal)revenue / (decimal)100000000).ToString("F8");
+                else
+                    tbIncomeBTC.Text = "---";
             }
             catch 
             {
                 tbIncome.Text = tbIncomeBTC.Text = "---";
             }
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            cbInterval.Items.Add(new Item("Week", "604800"));
+            cbInterval.Items.Add(new Item("Day", "86400"));
+            cbInterval.Items.Add(new Item("Hour", "3600"));
+            cbInterval.SelectedIndex = 1;
+
+            cbHashrateUnit.Items.Add(new Item("GH/s", "1000000000"));
+            cbHashrateUnit.Items.Add(new Item("MH/s", "1000000"));
+            cbHashrateUnit.Items.Add(new Item("kH/s", "1000"));
+            cbHashrateUnit.Items.Add(new Item("H/s", "1"));
+            cbHashrateUnit.SelectedIndex = 1;
+        }
+
+        private void cbInterval_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            OnChanged();
+        }
+
+        private void cbHashrateUnit_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            OnChanged();
         }
     }
 }
