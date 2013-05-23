@@ -46,6 +46,10 @@
             this.tbIncomeBTC = new System.Windows.Forms.TextBox();
             this.cbInterval = new System.Windows.Forms.ComboBox();
             this.cbHashrateUnit = new System.Windows.Forms.ComboBox();
+            this.btnTips = new System.Windows.Forms.Button();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // label1
@@ -210,11 +214,42 @@
             this.cbHashrateUnit.TabIndex = 2;
             this.cbHashrateUnit.SelectedIndexChanged += new System.EventHandler(this.cbHashrateUnit_SelectedIndexChanged);
             // 
+            // btnTips
+            // 
+            this.btnTips.Image = global::CoinProfitability.Properties.Resources.tipjar;
+            this.btnTips.Location = new System.Drawing.Point(71, 19);
+            this.btnTips.Name = "btnTips";
+            this.btnTips.Size = new System.Drawing.Size(117, 114);
+            this.btnTips.TabIndex = 19;
+            this.btnTips.UseVisualStyleBackColor = true;
+            this.btnTips.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.label3);
+            this.groupBox1.Controls.Add(this.btnTips);
+            this.groupBox1.Location = new System.Drawing.Point(12, 206);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(247, 155);
+            this.groupBox1.TabIndex = 20;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Hit the Tipjar!";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(55, 136);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(153, 13);
+            this.label3.TabIndex = 20;
+            this.label3.Text = "Click QR code to launch wallet";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(268, 213);
+            this.ClientSize = new System.Drawing.Size(268, 375);
+            this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.cbHashrateUnit);
             this.Controls.Add(this.cbInterval);
             this.Controls.Add(this.label12);
@@ -236,6 +271,8 @@
             this.Name = "Form1";
             this.Text = "Coin Profitability";
             this.Load += new System.EventHandler(this.Form1_Load);
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -261,6 +298,9 @@
         private System.Windows.Forms.TextBox tbIncomeBTC;
         private System.Windows.Forms.ComboBox cbInterval;
         private System.Windows.Forms.ComboBox cbHashrateUnit;
+        private System.Windows.Forms.Button btnTips;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.Label label3;
     }
 }
 

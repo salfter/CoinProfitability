@@ -101,5 +101,10 @@ namespace CoinProfitability
         {
             OnChanged();
         }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("http://alfter.us/donate.php");
+        }
     }
 }
