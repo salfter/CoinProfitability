@@ -21,3 +21,12 @@ http://json.codeplex.com/releases/view/106328
 I built against v5.0r5.  Use the DLL built for .NET Framework 4.0 to maintain compatibility with Windows XP.  Unfortunately, it doesn't seem to play well on Mono; the exchange rate will be filled in as "Unavailable."  I probably need to find another parser.
 
 If you don't have any configuration stored in the registry, an error will pop up at startup.  On Windows, import CoinProfitability.reg.  On Linux, unpack CoinProfitability.reg.tar.gz in your home directory.
+
+Questions?  The support thread is here:
+
+https://bitcointalk.org/index.php?topic=213580
+
+Scott Alfter
+scott@alfter.us
+
+(last updated: 29 May 2013)
