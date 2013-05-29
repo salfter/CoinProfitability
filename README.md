@@ -12,4 +12,4 @@ You most likely know your hashrate for SHA-256 and scrypt coins.  Difficulty is 
 
 I built this in Visual Studio 2012 Express against .NET Framework 4.0 (needed that version because it's the first that includes BigInteger support).  I've also tested it under Mono; its implementation of Decimal.ToString() is a bit different and needed some adjustment.  
 
-It could take some usability improvements, but as it stands, it gets the job done. :-)
+In this release, I've added the ability to store configuration information for the coins of your choice in the registry, and to select a coin from a drop-down list.  A sample registry file (with configurations for three coins) is included.  Most items are self-explanatory.  Valid choices for ExplorerType are BlockEx (for blockexplorer.com and blockchain.info) and Abe (for block explorers running Abe).  DefaultHashRate is optional; you can set it to whatever's appropriate for your hardware.  I've only tested exchange-rate lookup against bter.com; other exchanges that offer a JSON API may also work.  For Bitcoin, the exchange rate is automatically set to 1.
