@@ -313,11 +313,15 @@ namespace CoinProfitability
             for (int c = 0; c < cbHashrateUnit.Items.Count; c++)
                 if (((Item)cbHashrateUnit.Items[c]).Name == i.DefaultHashRateUnit)
                     cbHashrateUnit.SelectedIndex = c;
-            if (i.ExchangeURL != null)
-                tbExchangeRate.Text = GetExchangeRate(i.ExchangeURL, i.ExchangeJSONKey).ToString();
-            else
-                tbExchangeRate.Text = "";
-            if (cbCoinType.Items[cbCoinType.SelectedIndex].ToString() == "Bitcoin")
+            try
+            {
+                if (i.ExchangeURL != null)
+                    tbExchangeRate.Text = GetExchangeRate(i.ExchangeURL, i.ExchangeJSONKey).ToString();
+                else
+                    tbExchangeRate.Text = "";
+            }
+            catch { tbExchangeRate.Text = "Unavailable"; }
+            if (cbCoinType.Items[cbCoinType.SelectedIndex].ToString().ToLower() == "bitcoin") // case-insensitive for Mono compatibility
                 tbExchangeRate.Text = "1";
             tbHashrate.Text = i.DefaultHashRate;
             lblUpdating.Visible = false;
