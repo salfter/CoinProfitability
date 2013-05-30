@@ -25,6 +25,9 @@ namespace profit
         static void Main(string[] args)
         {
             RegistrySettings rs = new RegistrySettings();
+            Profitability p = new Profitability();
+            CoinInformation ci = new CoinInformation();
+            ExchangeInformation ei = new ExchangeInformation();
             Getopt go = new Getopt("profit", args, "hlc:br:",
                 new LongOpt[] 
                 { 
@@ -58,7 +61,28 @@ namespace profit
                         Help();
                         return;
                 }
-
+            CoinInfo inf = rs.Coins[szSelectedCoin];
+            double diff = ci.GetDifficulty(inf.ExplorerType, inf.ExplorerBaseURL, inf.ExplorerChain);
+            decimal reward = ci.GetReward(inf.ExplorerType, inf.ExplorerBaseURL, inf.ExplorerChain);
+            decimal hashrate = 0;
+            switch (inf.DefaultHashRateUnit)
+            {
+                case "H/s":
+                    hashrate = Convert.ToDecimal(inf.DefaultHashRate);
+                    break;
+                case "kH/s":
+                    hashrate = Convert.ToDecimal(inf.DefaultHashRate) * 1000;
+                    break;
+                case "MH/s":
+                    hashrate = Convert.ToDecimal(inf.DefaultHashRate) * 1000000;
+                    break;
+                case "GH/s":
+                    hashrate = Convert.ToDecimal(inf.DefaultHashRate) * 100000000;
+                    break;
+                default:
+                    throw new ArgumentException("invalid hashrate unit");
+            }
+            Console.WriteLine(p.ProfitOnInterval(86400, hashrate, reward, (decimal)diff));
         }
     }
 }
