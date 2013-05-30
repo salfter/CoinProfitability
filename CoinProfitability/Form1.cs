@@ -83,23 +83,12 @@ namespace CoinProfitability
             Profitability p = new Profitability();
             try
             {
-                //BigInteger interval = new BigInteger(Convert.ToInt64(((Item)(cbInterval.SelectedItem)).Value));
-                //BigInteger hashrate = new BigInteger(Convert.ToDecimal(tbHashrate.Text)) * Convert.ToInt64(((Item)(cbHashrateUnit.SelectedItem)).Value);
-                //BigInteger reward = new BigInteger(Convert.ToDecimal(tbReward.Text)) * 100000000;
-                //decimal difficulty = Convert.ToDecimal(tbDifficulty.Text);
-
-                //BigInteger target = ((new BigInteger(65535) << 208) * 100000000000) / new BigInteger(difficulty * 100000000000);
-                //BigInteger revenue = interval * target * hashrate * reward / (new BigInteger(1) << 256);
-
-                //tbIncome.Text = ((decimal)revenue / (decimal)100000000).ToString("F8");
-
                 tbIncome.Text = p.ProfitOnInterval(Convert.ToInt64(((Item)(cbInterval.SelectedItem)).Value),
                     Convert.ToDecimal(tbHashrate.Text) * Convert.ToInt64(((Item)(cbHashrateUnit.SelectedItem)).Value),
                     Convert.ToDecimal(tbReward.Text),
                     Convert.ToDecimal(tbDifficulty.Text)).ToString("F8");
 
                 if (tbExchangeRate.Text != "")
-                    //tbIncomeBTC.Text = (Convert.ToDecimal(tbExchangeRate.Text) * (decimal)revenue / (decimal)100000000).ToString("F8");
                     tbIncomeBTC.Text = p.ProfitOnIntervalBTC(Convert.ToInt64(((Item)(cbInterval.SelectedItem)).Value),
                     Convert.ToDecimal(tbHashrate.Text) * Convert.ToInt64(((Item)(cbHashrateUnit.SelectedItem)).Value),
                     Convert.ToDecimal(tbReward.Text),
