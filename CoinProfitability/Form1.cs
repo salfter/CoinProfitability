@@ -2,10 +2,7 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Numerics;
-using System.Net;
-using Microsoft.Win32;
-using System.IO;
-using System.Web.Script.Serialization;
+using ScottAlfter.CoinProfitabilityLibrary;
 
 // Coin Profitability Calculator
 //
@@ -33,212 +30,9 @@ namespace CoinProfitability
 {
     public partial class Form1 : Form
     {
-        // exchange rate wrapper
+        // this reads in registry settings
 
-        private decimal GetExchangeRate(string exchange, string abbrev)
-        {
-            switch (exchange)
-            {
-                case "Bter":
-                    return GetExchangeRateJSON("https://bter.com/api/1/ticker/"+abbrev.ToLower()+"_btc", "buy");
-                case "Cryptsy":
-                    return GetExchangeRateCryptsy(abbrev.ToUpper());
-                default:
-                    throw new ArgumentException(exchange + " exchange not supported");
-            }
-        }
-
-        // scrape HTML to get exchange data from Cryptsy
-
-        private decimal GetExchangeRateCryptsy(string abbrev)
-        {
-            WebClient wc = new WebClient();
-            string page = wc.DownloadString("https://www.cryptsy.com/");
-            foreach (string line in page.Split(new char[] { '\n' }))
-                if (line.Contains(abbrev + "/BTC") && line.Contains("leftmarketinfo"))
-                {
-                    string link = line.Substring(line.IndexOf("href") + 6);
-                    link = link.Substring(0, link.IndexOf("\""));
-                    link = "https://www.cryptsy.com"+link.Replace("/markets/view", "/orders/ajaxbuyorderslist");
-                    string data = wc.DownloadString(link);
-                    var jss = new JavaScriptSerializer();
-                    var table = jss.Deserialize<dynamic>(data);
-                    return Convert.ToDecimal(table["aaData"][0][0]);
-                }
-            return 0;
-        }
-
-        // parse JSON data returned by exchange to select desired rate
-
-        private decimal GetExchangeRateJSON(string url, string item)
-        {
-            WebClient wc = new WebClient();
-            string data = wc.DownloadString(url);
-            var jss = new JavaScriptSerializer();
-            var table = jss.Deserialize<dynamic>(data);
-            return Convert.ToDecimal(table[item]);
-        }
-
-        // wrapper to get current block reward
-
-        private decimal GetReward(string chain_type, string url_prefix, string chain_name)
-        {
-            switch (chain_type)
-            {
-                case "Abe":
-                    return GetRewardAbe(url_prefix, chain_name);
-                case "BlockEx":
-                    return GetRewardBlockEx(url_prefix);
-                case "Tyrion":
-                    return GetRewardTyrion(url_prefix, chain_name);
-                default:
-                    throw new ArgumentException("Block explorer type \"" + chain_type + "\" unknown");
-            }
-        }
-
-        // wrapper to get current difficulty
-
-        private double GetDifficulty(string chain_type, string url_prefix, string chain_name)
-        {
-            switch (chain_type)
-            {
-                case "Abe":
-                case "Tyrion": // similar enough to Abe
-                    double difficulty = -1;
-                    try { difficulty = GetDifficultyAbe(url_prefix, chain_name); }
-                    catch { }
-                    if (difficulty == -1)
-                    {
-                        try { difficulty = GetDifficultyAbeAlt(url_prefix, chain_name); }
-                        catch { }
-                    }
-                    if (difficulty != -1)
-                        return difficulty;
-                    else
-                        throw new InvalidDataException("Can't get difficulty from " + url_prefix);
-                case "BlockEx":
-                    return GetDifficultyBlockEx(url_prefix);
-                default:
-                    throw new ArgumentException("Block explorer type \"" + chain_type + "\" unknown");
-            }
-        }
-
-        // workaround for explorer.litecoin.net's outdated Abe installation:
-        // get difficulty from most recent block
-
-        private double GetDifficultyAbeAlt(string url_prefix, string chain_name)
-        {
-            WebClient wc = new WebClient();
-            int blockcount = Convert.ToInt32(wc.DownloadString(url_prefix + "/chain/" + chain_name + "/q/getblockcount"));
-            string blockinfo = wc.DownloadString(url_prefix + "/search?q=" + blockcount.ToString());
-            double difficulty = 0;
-            foreach (string line in blockinfo.Split(new char[] { '\n' }))
-                if (line.Contains("Difficulty") && !line.Contains("Cumulative"))
-                    difficulty = Convert.ToDouble(line.Split(new char[] { ' ' })[1]);
-            return difficulty;
-        }
-
-        // get block reward from most recent block on a Tyrion blockchain explorer
-
-        private decimal GetRewardTyrion(string url_prefix, string chain_name)
-        {
-            WebClient wc = new WebClient();
-            string homepage=wc.DownloadString(url_prefix + "/chain/" + chain_name);
-            string link = "";
-            foreach (string line in homepage.Split(new char[] { '\n' }))
-                if (line.Contains("<tr>") && !line.Contains("<table"))
-                {
-                    string[] fields = line.Split(new string[] { "<td>", "</td>", "<tr>", "</tr>" }, StringSplitOptions.RemoveEmptyEntries);
-                    link = fields[0].Substring(11);
-                    link = url_prefix + link.Substring(0, link.IndexOf("\""));
-                    break;
-                }
-            string blockinfo = wc.DownloadString(link);
-            int tx_index = 0;
-            decimal reward = 0;
-            foreach (string line in blockinfo.Split(new char[] { '\n' }))
-                if (line.Contains("<tr>") && !line.Contains("<table"))
-                {
-                    string[] fields = line.Split(new string[] { "<td>", "</td>", "<tr>", "</tr>" }, StringSplitOptions.RemoveEmptyEntries);
-                    if (tx_index == 0)
-                    {
-                        reward = Convert.ToDecimal(fields[3].Split(new char[] { ' ' })[1]);
-                        if (fields[3].Contains("+"))
-                            break;
-                    }
-                    else
-                        reward -= Convert.ToDecimal(fields[1]);
-                    tx_index++;
-                }
-            return reward * (decimal)100000000;
-        }
-         
-        // get block reward from most recent block on an Abe blockchain explorer
-
-        private decimal GetRewardAbe(string url_prefix, string chain_name)
-        {
-            WebClient wc = new WebClient();
-            int blockcount = Convert.ToInt32(wc.DownloadString(url_prefix + "/chain/" + chain_name + "/q/getblockcount"));
-            string blockinfo = wc.DownloadString(url_prefix + "/search?q=" + blockcount.ToString());
-            int tx_index = 0;
-            decimal reward = 0;
-            foreach (string line in blockinfo.Split(new char[] { '\n' }))
-                if (line.Contains("<tr>") && !line.Contains("<table>"))
-                {
-                    string[] fields = line.Split(new string[] { "<td>", "</td>", "<tr>", "</tr>" }, StringSplitOptions.RemoveEmptyEntries);
-                    if (tx_index == 0)
-                    {
-                        reward = Convert.ToDecimal(fields[3].Split(new char[] { ' ' })[1]);
-                        if (fields[3].Contains("+"))
-                            break;
-                    }
-                    else
-                        reward -= Convert.ToDecimal(fields[1]);
-                    tx_index++;
-                }
-            return reward * (decimal)100000000;
-        }
-
-        // get difficulty (only works with newer Abe servers)
-
-        private double GetDifficultyAbe(string url_prefix, string chain_name)
-        {
-            WebClient wc = new WebClient();
-            return Convert.ToDouble(wc.DownloadString(url_prefix + "/chain/" + chain_name + "/q/getdifficulty"));
-        }
-
-        // get block reward from a blockexplorer.com-compatible server
-
-        private decimal GetRewardBlockEx(string url_prefix)
-        {
-            WebClient wc = new WebClient();
-            return Convert.ToDecimal(wc.DownloadString(url_prefix+"/q/bcperblock"));
-        }
-
-        // get difficulty from a blockexplorer.com-compatible server
-
-        private double GetDifficultyBlockEx(string url_prefix)
-        {
-            WebClient wc = new WebClient();
-            return Convert.ToDouble(wc.DownloadString(url_prefix+"/q/getdifficulty"));
-        }
-
-        // registry settings are read into these
-
-        private struct CoinInfo
-        {
-            public string ExplorerBaseURL;
-            public string ExplorerChain;
-            public string ExplorerType;
-            public string DefaultHashRateUnit;
-            //public string ExchangeURL;
-            //public string ExchangeJSONKey;
-            public string Exchange;
-            public string Abbreviation;
-            public string DefaultHashRate;
-        }
-
-        SortedDictionary<string, CoinInfo> coins = new SortedDictionary<string, CoinInfo>();
+        RegistrySettings rs = new RegistrySettings();
 
         // drop-down lists are populated with these
 
@@ -324,30 +118,8 @@ namespace CoinProfitability
             cbHashrateUnit.Items.Add(new Item("H/s", "1"));
             cbHashrateUnit.SelectedIndex = 1;
 
-            // read registry settings
-
-            try
-            {
-                using (RegistryKey rkcu = Registry.CurrentUser)
-                using (RegistryKey rkSettings = rkcu.OpenSubKey("Software\\Scott Alfter\\CoinProfitability"))
-                {
-                    foreach (string i in rkSettings.GetSubKeyNames())
-                    {
-                        RegistryKey k = rkSettings.OpenSubKey(i);
-                        CoinInfo t = new CoinInfo();
-                        t.ExplorerBaseURL = (string)k.GetValue("ExplorerBaseURL");
-                        t.ExplorerType = (string)k.GetValue("ExplorerType");
-                        t.ExplorerChain = (string)k.GetValue("ExplorerChain");
-                        t.DefaultHashRateUnit = (string)k.GetValue("DefaultHashRateUnit");
-                        t.Exchange = (string)k.GetValue("Exchange");
-                        t.Abbreviation = (string)k.GetValue("Abbreviation");
-                        t.DefaultHashRate = (string)k.GetValue("DefaultHashRate");
-                        coins.Add(i, t);
-                        cbCoinType.Items.Add(i);
-                    }
-                }
-            }
-            catch (Exception ex) { MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+            foreach (string i in rs.GetCoinTypes())
+                cbCoinType.Items.Add(i);
         }
 
         private void cbInterval_SelectedIndexChanged(object sender, EventArgs e)
@@ -371,15 +143,17 @@ namespace CoinProfitability
 
         private void cbCoinType_SelectedIndexChanged(object sender, EventArgs e)
         {
+            ExchangeInformation ei = new ExchangeInformation();
+            CoinInformation ci = new CoinInformation();
             lblUpdating.Visible = true;
             this.Refresh();
             string szCoinType=cbCoinType.Items[cbCoinType.SelectedIndex].ToString();
-            CoinInfo i = coins[szCoinType];
+            CoinInfo i = rs.Coins[szCoinType];
             lblAbbrev.Text = lblRewardCurrency.Text = i.Abbreviation;
             lblExchangeRateCurrency.Text = "BTC/" + i.Abbreviation;
-            try { tbDifficulty.Text = GetDifficulty(i.ExplorerType, i.ExplorerBaseURL, i.ExplorerChain).ToString(); }
+            try { tbDifficulty.Text = ci.GetDifficulty(i.ExplorerType, i.ExplorerBaseURL, i.ExplorerChain).ToString(); }
             catch { tbDifficulty.Text = "Unavailable"; }
-            try { tbReward.Text = (GetReward(i.ExplorerType, i.ExplorerBaseURL, i.ExplorerChain) / (decimal)100000000).ToString(); }
+            try { tbReward.Text = (ci.GetReward(i.ExplorerType, i.ExplorerBaseURL, i.ExplorerChain) / (decimal)100000000).ToString(); }
             catch { tbReward.Text = "Unavailable"; }
             for (int c = 0; c < cbHashrateUnit.Items.Count; c++)
                 if (((Item)cbHashrateUnit.Items[c]).Name == i.DefaultHashRateUnit)
@@ -387,7 +161,7 @@ namespace CoinProfitability
             try
             {
                 if (i.Exchange != null)
-                    tbExchangeRate.Text = GetExchangeRate(i.Exchange, i.Abbreviation).ToString();
+                    tbExchangeRate.Text = ei.GetExchangeRate(i.Exchange, i.Abbreviation).ToString();
                 else
                     tbExchangeRate.Text = "";
             }
