@@ -31,17 +31,17 @@
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.tbHashrate = new System.Windows.Forms.TextBox();
-            this.label5 = new System.Windows.Forms.Label();
+            this.lblRewardCurrency = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.tbReward = new System.Windows.Forms.TextBox();
             this.label7 = new System.Windows.Forms.Label();
             this.tbDifficulty = new System.Windows.Forms.TextBox();
-            this.label8 = new System.Windows.Forms.Label();
+            this.lblExchangeRateCurrency = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
             this.tbExchangeRate = new System.Windows.Forms.TextBox();
             this.label10 = new System.Windows.Forms.Label();
             this.tbIncome = new System.Windows.Forms.TextBox();
-            this.label11 = new System.Windows.Forms.Label();
+            this.lblAbbrev = new System.Windows.Forms.Label();
             this.label12 = new System.Windows.Forms.Label();
             this.tbIncomeBTC = new System.Windows.Forms.TextBox();
             this.cbInterval = new System.Windows.Forms.ComboBox();
@@ -81,14 +81,14 @@
             this.tbHashrate.TabIndex = 1;
             this.tbHashrate.TextChanged += new System.EventHandler(this.tbHashrate_TextChanged);
             // 
-            // label5
+            // lblRewardCurrency
             // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(206, 107);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(14, 13);
-            this.label5.TabIndex = 8;
-            this.label5.Text = "C";
+            this.lblRewardCurrency.AutoSize = true;
+            this.lblRewardCurrency.Location = new System.Drawing.Point(206, 107);
+            this.lblRewardCurrency.Name = "lblRewardCurrency";
+            this.lblRewardCurrency.Size = new System.Drawing.Size(14, 13);
+            this.lblRewardCurrency.TabIndex = 8;
+            this.lblRewardCurrency.Text = "C";
             // 
             // label6
             // 
@@ -124,14 +124,14 @@
             this.tbDifficulty.TabIndex = 4;
             this.tbDifficulty.TextChanged += new System.EventHandler(this.tbDifficulty_TextChanged);
             // 
-            // label8
+            // lblExchangeRateCurrency
             // 
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(206, 159);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(40, 13);
-            this.label8.TabIndex = 13;
-            this.label8.Text = "BTC/C";
+            this.lblExchangeRateCurrency.AutoSize = true;
+            this.lblExchangeRateCurrency.Location = new System.Drawing.Point(206, 159);
+            this.lblExchangeRateCurrency.Name = "lblExchangeRateCurrency";
+            this.lblExchangeRateCurrency.Size = new System.Drawing.Size(40, 13);
+            this.lblExchangeRateCurrency.TabIndex = 13;
+            this.lblExchangeRateCurrency.Text = "BTC/C";
             // 
             // label9
             // 
@@ -169,14 +169,14 @@
             this.tbIncome.TabIndex = 15;
             this.tbIncome.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
-            // label11
+            // lblAbbrev
             // 
-            this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(121, 216);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(14, 13);
-            this.label11.TabIndex = 16;
-            this.label11.Text = "C";
+            this.lblAbbrev.AutoSize = true;
+            this.lblAbbrev.Location = new System.Drawing.Point(121, 216);
+            this.lblAbbrev.Name = "lblAbbrev";
+            this.lblAbbrev.Size = new System.Drawing.Size(14, 13);
+            this.lblAbbrev.TabIndex = 16;
+            this.lblAbbrev.Text = "C";
             // 
             // label12
             // 
@@ -289,15 +289,15 @@
             this.Controls.Add(this.cbInterval);
             this.Controls.Add(this.label12);
             this.Controls.Add(this.tbIncomeBTC);
-            this.Controls.Add(this.label11);
+            this.Controls.Add(this.lblAbbrev);
             this.Controls.Add(this.tbIncome);
             this.Controls.Add(this.label10);
-            this.Controls.Add(this.label8);
+            this.Controls.Add(this.lblExchangeRateCurrency);
             this.Controls.Add(this.label9);
             this.Controls.Add(this.tbExchangeRate);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.tbDifficulty);
-            this.Controls.Add(this.label5);
+            this.Controls.Add(this.lblRewardCurrency);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.tbReward);
             this.Controls.Add(this.label2);
@@ -318,17 +318,17 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox tbHashrate;
-        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Label lblRewardCurrency;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.TextBox tbReward;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.TextBox tbDifficulty;
-        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.Label lblExchangeRateCurrency;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.TextBox tbExchangeRate;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.TextBox tbIncome;
-        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.Label lblAbbrev;
         private System.Windows.Forms.Label label12;
         private System.Windows.Forms.TextBox tbIncomeBTC;
         private System.Windows.Forms.ComboBox cbInterval;

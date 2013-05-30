@@ -4,8 +4,8 @@ using System.Windows.Forms;
 using System.Numerics;
 using System.Net;
 using Microsoft.Win32;
-using Newtonsoft.Json;
 using System.IO;
+using System.Web.Script.Serialization;
 
 // Coin Profitability Calculator
 //
@@ -60,38 +60,23 @@ namespace CoinProfitability
                     string link = line.Substring(line.IndexOf("href") + 6);
                     link = link.Substring(0, link.IndexOf("\""));
                     link = "https://www.cryptsy.com"+link.Replace("/markets/view", "/orders/ajaxbuyorderslist");
-                    using (StringReader sr=new StringReader(wc.DownloadString(link)))
-                    using (JsonTextReader r = new JsonTextReader(sr))
-                    {
-                        while (r.Read())
-                        {
-                            if (r.TokenType == JsonToken.String) // first string returned is highest buy price
-                                return Convert.ToDecimal(r.Value);
-                        }
-                    }
+                    string data = wc.DownloadString(link);
+                    var jss = new JavaScriptSerializer();
+                    var table = jss.Deserialize<dynamic>(data);
+                    return Convert.ToDecimal(table["aaData"][0][0]);
                 }
             return 0;
         }
 
         // parse JSON data returned by exchange to select desired rate
 
-        private decimal GetExchangeRateJSON(string url, string var)
+        private decimal GetExchangeRateJSON(string url, string item)
         {
             WebClient wc = new WebClient();
-            using (StringReader sr=new StringReader(wc.DownloadString(url)))
-            using (JsonTextReader r = new JsonTextReader(sr))
-            {
-                bool bReadNext = false;
-                while (r.Read())
-                {
-                    if (bReadNext == true)
-                        return Convert.ToDecimal(r.Value);
-                    if (r.Value != null)
-                        if (r.Value.ToString() == var)
-                            bReadNext = true;
-                }
-            }
-            return 0;
+            string data = wc.DownloadString(url);
+            var jss = new JavaScriptSerializer();
+            var table = jss.Deserialize<dynamic>(data);
+            return Convert.ToDecimal(table[item]);
         }
 
         // wrapper to get current block reward
@@ -390,6 +375,8 @@ namespace CoinProfitability
             this.Refresh();
             string szCoinType=cbCoinType.Items[cbCoinType.SelectedIndex].ToString();
             CoinInfo i = coins[szCoinType];
+            lblAbbrev.Text = lblRewardCurrency.Text = i.Abbreviation;
+            lblExchangeRateCurrency.Text = "BTC/" + i.Abbreviation;
             try { tbDifficulty.Text = GetDifficulty(i.ExplorerType, i.ExplorerBaseURL, i.ExplorerChain).ToString(); }
             catch { tbDifficulty.Text = "Unavailable"; }
             try { tbReward.Text = (GetReward(i.ExplorerType, i.ExplorerBaseURL, i.ExplorerChain) / (decimal)100000000).ToString(); }
