@@ -33,20 +33,63 @@ namespace CoinProfitability
 {
     public partial class Form1 : Form
     {
-        // parse JSON data returned by exchange to select desired rate
+        // exchange rate wrapper
 
-        private decimal GetExchangeRate(string url, string var)
+        private decimal GetExchangeRate(string exchange, string abbrev)
+        {
+            switch (exchange)
+            {
+                case "Bter":
+                    return GetExchangeRateJSON("https://bter.com/api/1/ticker/"+abbrev.ToLower()+"_btc", "buy");
+                case "Cryptsy":
+                    return GetExchangeRateCryptsy(abbrev.ToUpper());
+                default:
+                    throw new ArgumentException(exchange + " exchange not supported");
+            }
+        }
+
+        // scrape HTML to get exchange data from Cryptsy
+
+        private decimal GetExchangeRateCryptsy(string abbrev)
         {
             WebClient wc = new WebClient();
-            JsonTextReader r = new JsonTextReader(new StringReader(wc.DownloadString(url)));
-            bool bReadNext = false;
-            while (r.Read())
+            string page = wc.DownloadString("https://www.cryptsy.com/");
+            foreach (string line in page.Split(new char[] { '\n' }))
+                if (line.Contains(abbrev + "/BTC") && line.Contains("leftmarketinfo"))
+                {
+                    string link = line.Substring(line.IndexOf("href") + 6);
+                    link = link.Substring(0, link.IndexOf("\""));
+                    link = "https://www.cryptsy.com"+link.Replace("/markets/view", "/orders/ajaxbuyorderslist");
+                    using (StringReader sr=new StringReader(wc.DownloadString(link)))
+                    using (JsonTextReader r = new JsonTextReader(sr))
+                    {
+                        while (r.Read())
+                        {
+                            if (r.TokenType == JsonToken.String) // first string returned is highest buy price
+                                return Convert.ToDecimal(r.Value);
+                        }
+                    }
+                }
+            return 0;
+        }
+
+        // parse JSON data returned by exchange to select desired rate
+
+        private decimal GetExchangeRateJSON(string url, string var)
+        {
+            WebClient wc = new WebClient();
+            using (StringReader sr=new StringReader(wc.DownloadString(url)))
+            using (JsonTextReader r = new JsonTextReader(sr))
             {
-                if (bReadNext == true)
-                    return Convert.ToDecimal(r.Value);
-                if (r.Value != null)
-                    if (r.Value.ToString() == var)
-                        bReadNext = true;
+                bool bReadNext = false;
+                while (r.Read())
+                {
+                    if (bReadNext == true)
+                        return Convert.ToDecimal(r.Value);
+                    if (r.Value != null)
+                        if (r.Value.ToString() == var)
+                            bReadNext = true;
+                }
             }
             return 0;
         }
@@ -61,6 +104,8 @@ namespace CoinProfitability
                     return GetRewardAbe(url_prefix, chain_name);
                 case "BlockEx":
                     return GetRewardBlockEx(url_prefix);
+                case "Tyrion":
+                    return GetRewardTyrion(url_prefix, chain_name);
                 default:
                     throw new ArgumentException("Block explorer type \"" + chain_type + "\" unknown");
             }
@@ -73,6 +118,7 @@ namespace CoinProfitability
             switch (chain_type)
             {
                 case "Abe":
+                case "Tyrion": // similar enough to Abe
                     double difficulty = -1;
                     try { difficulty = GetDifficultyAbe(url_prefix, chain_name); }
                     catch { }
@@ -107,7 +153,42 @@ namespace CoinProfitability
             return difficulty;
         }
 
-        // get block reward from most recent block on an Abe server
+        // get block reward from most recent block on a Tyrion blockchain explorer
+
+        private decimal GetRewardTyrion(string url_prefix, string chain_name)
+        {
+            WebClient wc = new WebClient();
+            string homepage=wc.DownloadString(url_prefix + "/chain/" + chain_name);
+            string link = "";
+            foreach (string line in homepage.Split(new char[] { '\n' }))
+                if (line.Contains("<tr>") && !line.Contains("<table"))
+                {
+                    string[] fields = line.Split(new string[] { "<td>", "</td>", "<tr>", "</tr>" }, StringSplitOptions.RemoveEmptyEntries);
+                    link = fields[0].Substring(11);
+                    link = url_prefix + link.Substring(0, link.IndexOf("\""));
+                    break;
+                }
+            string blockinfo = wc.DownloadString(link);
+            int tx_index = 0;
+            decimal reward = 0;
+            foreach (string line in blockinfo.Split(new char[] { '\n' }))
+                if (line.Contains("<tr>") && !line.Contains("<table"))
+                {
+                    string[] fields = line.Split(new string[] { "<td>", "</td>", "<tr>", "</tr>" }, StringSplitOptions.RemoveEmptyEntries);
+                    if (tx_index == 0)
+                    {
+                        reward = Convert.ToDecimal(fields[3].Split(new char[] { ' ' })[1]);
+                        if (fields[3].Contains("+"))
+                            break;
+                    }
+                    else
+                        reward -= Convert.ToDecimal(fields[1]);
+                    tx_index++;
+                }
+            return reward * (decimal)100000000;
+        }
+         
+        // get block reward from most recent block on an Abe blockchain explorer
 
         private decimal GetRewardAbe(string url_prefix, string chain_name)
         {
@@ -165,8 +246,10 @@ namespace CoinProfitability
             public string ExplorerChain;
             public string ExplorerType;
             public string DefaultHashRateUnit;
-            public string ExchangeURL;
-            public string ExchangeJSONKey;
+            //public string ExchangeURL;
+            //public string ExchangeJSONKey;
+            public string Exchange;
+            public string Abbreviation;
             public string DefaultHashRate;
         }
 
@@ -271,8 +354,8 @@ namespace CoinProfitability
                         t.ExplorerType = (string)k.GetValue("ExplorerType");
                         t.ExplorerChain = (string)k.GetValue("ExplorerChain");
                         t.DefaultHashRateUnit = (string)k.GetValue("DefaultHashRateUnit");
-                        t.ExchangeURL = (string)k.GetValue("ExchangeURL");
-                        t.ExchangeJSONKey = (string)k.GetValue("ExchangeJSONKey");
+                        t.Exchange = (string)k.GetValue("Exchange");
+                        t.Abbreviation = (string)k.GetValue("Abbreviation");
                         t.DefaultHashRate = (string)k.GetValue("DefaultHashRate");
                         coins.Add(i, t);
                         cbCoinType.Items.Add(i);
@@ -305,7 +388,8 @@ namespace CoinProfitability
         {
             lblUpdating.Visible = true;
             this.Refresh();
-            CoinInfo i = coins[cbCoinType.Items[cbCoinType.SelectedIndex].ToString()];
+            string szCoinType=cbCoinType.Items[cbCoinType.SelectedIndex].ToString();
+            CoinInfo i = coins[szCoinType];
             try { tbDifficulty.Text = GetDifficulty(i.ExplorerType, i.ExplorerBaseURL, i.ExplorerChain).ToString(); }
             catch { tbDifficulty.Text = "Unavailable"; }
             try { tbReward.Text = (GetReward(i.ExplorerType, i.ExplorerBaseURL, i.ExplorerChain) / (decimal)100000000).ToString(); }
@@ -315,8 +399,8 @@ namespace CoinProfitability
                     cbHashrateUnit.SelectedIndex = c;
             try
             {
-                if (i.ExchangeURL != null)
-                    tbExchangeRate.Text = GetExchangeRate(i.ExchangeURL, i.ExchangeJSONKey).ToString();
+                if (i.Exchange != null)
+                    tbExchangeRate.Text = GetExchangeRate(i.Exchange, i.Abbreviation).ToString();
                 else
                     tbExchangeRate.Text = "";
             }
