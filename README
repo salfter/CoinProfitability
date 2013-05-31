@@ -12,11 +12,13 @@ You most likely know your hashrate for SHA-256 and scrypt coins.  Difficulty is 
 
 I built this in Visual Studio 2012 Express against .NET Framework 4.0 (needed that version because it's the first that includes BigInteger support).  I've also tested it under Mono; its implementation of Decimal.ToString() is a bit different and needed some adjustment.  
 
-You can store configuration information for the coins of your choice in the registry, and to select a coin from a drop-down list.  A sample registry file (with configurations for five coins) is included.  Most items are self-explanatory.  Valid choices for ExplorerType are BlockEx (for blockexplorer.com and blockchain.info), Abe (for block explorers running Abe), and Tyrion (which appears to be an Abe variant; the explorers at *.p2pool.nl use it).  DefaultHashRate is optional; you can set it to whatever's appropriate for your hardware.  
+You can store configuration information for the coins of your choice in the registry, and to select a coin from a drop-down list.  A sample registry file (with configurations for five coins) is included.  Most items are self-explanatory.  Valid choices for ExplorerType are BlockEx (for blockexplorer.com and blockchain.info) and Abe (for block explorers running Abe).  DefaultHashRate is optional; you can set it to whatever's appropriate for your hardware.
 
-Exchange configuration is simplified in this release; just create a string value named Exchange.  You can set this to either Bter or Cryptsy.  Also, create another string value named Abbreviation; set it to the common three-character abbreviation (such as LTC for Litecoin). As long as the exchange you use supports the altcoin you want, either should work.  Implementation of support for other exchanges is left as an exercise for the reader.  For Bitcoin, the exchange rate is automatically set to 1.
+To select an exchange to use to convert a coin value to Bitcoinm just create a string value named Exchange.  You can set this to either Bter or Cryptsy.  Also, create another string value named Abbreviation; set it to the common three-character abbreviation (such as LTC for Litecoin). As long as the exchange you use supports the altcoin you want, either should work.  Implementation of support for other exchanges is left as an exercise for the reader.  For Bitcoin, the exchange rate is automatically set to 1.
 
 If you don't have any configuration stored in the registry, an error will pop up at startup.  On Windows, import CoinProfitability.reg.  On Linux, unpack CoinProfitability.reg.tar.gz in your home directory.  If you don't want any configuration information, you can ignore the error.
+
+This release introduces profit.exe, a simple command-line client you can use in your scripts.  Help is available with the -h or --help options; read it to learn what you can do.  By default, it will calculate Bitcoin mining revenue per day.  It uses the same registry settings as the GUI.
 
 Questions?  The support thread is here:
 
@@ -25,4 +27,4 @@ https://bitcointalk.org/index.php?topic=213580
 Scott Alfter
 scott@alfter.us
 
-(last updated: 30 May 2013)
+(last updated: 31 May 2013)

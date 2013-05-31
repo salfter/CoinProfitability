@@ -37,10 +37,10 @@ namespace ScottAlfter.CoinProfitabilityLibrary
         {
             BigInteger interval = new BigInteger(lInterval);
             BigInteger hashrate = new BigInteger(dHashRate);
-            BigInteger reward = new BigInteger(dReward) * 100000000;
+            BigInteger reward = new BigInteger(dReward);
             decimal difficulty = dDifficulty;
             BigInteger target = ((new BigInteger(65535) << 208) * 100000000000) / new BigInteger(difficulty * 100000000000);
-            BigInteger revenue = interval * target * hashrate * reward / (new BigInteger(1) << 256);
+            BigInteger revenue = interval * target * hashrate * reward * 100000000 / (new BigInteger(1) << 256);
             return (decimal)revenue / (decimal)100000000;
         }
 
