@@ -18,7 +18,13 @@ To select an exchange to use to convert a coin value to Bitcoinm just create a s
 
 If you don't have any configuration stored in the registry, an error will pop up at startup.  On Windows, import CoinProfitability.reg.  On Linux, unpack CoinProfitability.reg.tar.gz in your home directory.  If you don't want any configuration information, you can ignore the error.
 
-This release introduces profit.exe, a simple command-line client you can use in your scripts.  Help is available with the -h or --help options; read it to learn what you can do.  By default, it will calculate Bitcoin mining revenue per day.  It uses the same registry settings as the GUI.
+This release introduces two new components: CoinProfitLibrary and profit.exe.  CoinProfitLibrary is a DLL that provides the core functionality for the two included apps.  profit.exe is a simple command-line client you can use in your scripts.  Help is available with the -h or --help options; read it to learn what you can do.  By default, it will calculate Bitcoin mining revenue per day.  It uses the same registry settings as the GUI.  
+
+profit.exe also depends on GNU Getopt .NET:
+
+http://getopt.codeplex.com/
+
+To build from source, you will need to obtain this separately, build it, and make sure the reference in profit.exe points to your copy.
 
 Questions?  The support thread is here:
 
