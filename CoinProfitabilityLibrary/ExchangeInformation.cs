@@ -36,7 +36,7 @@ namespace ScottAlfter.CoinProfitabilityLibrary
             switch (exchange)
             {
                 case "Bter":
-                    return GetExchangeRateJSON("https://bter.com/api/1/ticker/" + abbrev.ToLower() + "_btc", "buy");
+                    return GetExchangeRateBter(abbrev.ToUpper());
                 case "Cryptsy":
                     return GetExchangeRateCryptsy(abbrev.ToUpper());
                 default:
@@ -44,39 +44,27 @@ namespace ScottAlfter.CoinProfitabilityLibrary
             }
         }
 
-        // scrape HTML to get exchange data from Cryptsy
+        // get exchange rate from Bter
+
+        private decimal GetExchangeRateBter(string abbrev)
+        {
+            WebClient wc = new WebClient();
+            string data = wc.DownloadString("https://bter.com/api/1/ticker/" + abbrev.ToLower() + "_btc");
+            var jss = new JavaScriptSerializer();
+            var table = jss.Deserialize<dynamic>(data);
+            return Convert.ToDecimal(table["buy"]);
+        }
+
+
+        // Cryptsy has an API now...w00t!
 
         private decimal GetExchangeRateCryptsy(string abbrev)
         {
             WebClient wc = new WebClient();
-            string page = wc.DownloadString("https://www.cryptsy.com/");
-            foreach (string line in page.Split(new char[] { '\n' }))
-                if (line.Contains(abbrev + "/BTC") && line.Contains("leftmarketinfo"))
-                {
-                    string link = line.Substring(line.IndexOf("href") + 6);
-                    link = link.Substring(0, link.IndexOf("\""));
-                    link = "https://www.cryptsy.com" + link.Replace("/markets/view", "/orders/ajaxbuyorderslist");
-                    string data = wc.DownloadString(link);
-                    var jss = new JavaScriptSerializer();
-                    var table = jss.Deserialize<dynamic>(data);
-                    try { return Convert.ToDecimal(table["aaData"][0][0]); }
-                    catch
-                    {
-                        return Convert.ToDecimal(table["aaData"][0][0].Split(new char[] { '<', '>' }, StringSplitOptions.RemoveEmptyEntries)[1]);
-                    }
-                }
-            return 0;
-        }
-
-        // parse JSON data returned by exchange to select desired rate
-
-        private decimal GetExchangeRateJSON(string url, string item)
-        {
-            WebClient wc = new WebClient();
-            string data = wc.DownloadString(url);
+            string data = wc.DownloadString("https://www.cryptsy.com/api.php?method=orderdata");
             var jss = new JavaScriptSerializer();
             var table = jss.Deserialize<dynamic>(data);
-            return Convert.ToDecimal(table[item]);
+            return Convert.ToDecimal(table["return"][abbrev]["buyorders"][0]["price"]);
         }
     }
 }
