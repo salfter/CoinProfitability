@@ -59,7 +59,11 @@ namespace ScottAlfter.CoinProfitabilityLibrary
                     string data = wc.DownloadString(link);
                     var jss = new JavaScriptSerializer();
                     var table = jss.Deserialize<dynamic>(data);
-                    return Convert.ToDecimal(table["aaData"][0][0]);
+                    try { return Convert.ToDecimal(table["aaData"][0][0]); }
+                    catch
+                    {
+                        return Convert.ToDecimal(table["aaData"][0][0].Split(new char[] { '<', '>' }, StringSplitOptions.RemoveEmptyEntries)[1]);
+                    }
                 }
             return 0;
         }
