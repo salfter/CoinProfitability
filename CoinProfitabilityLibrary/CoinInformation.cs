@@ -62,8 +62,12 @@ namespace ScottAlfter.CoinProfitabilityLibrary
             string blockinfo = wc.DownloadString(link);
             int tx_index = 0;
             decimal reward = 0;
+            bool bFoundTX = false;
             foreach (string line in blockinfo.Split(new char[] { '\n' }))
-                if (line.Contains("<tr>") && !line.Contains("<table"))
+            {
+                if (line.Contains("Transactions") && !line.Contains("<tr>")) // ftc.cryptocoinexplorer.com puts block info into a table
+                    bFoundTX = true;
+                if (line.Contains("<tr>") && !line.Contains("<table") && bFoundTX)
                 {
                     string[] fields = line.Split(new string[] { "<td>", "</td>", "<tr>", "</tr>" }, StringSplitOptions.RemoveEmptyEntries);
                     if (tx_index == 0)
@@ -76,6 +80,7 @@ namespace ScottAlfter.CoinProfitabilityLibrary
                         reward -= Convert.ToDecimal(fields[1]);
                     tx_index++;
                 }
+            }
             return reward;
         }
 
