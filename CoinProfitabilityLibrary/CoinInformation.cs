@@ -133,20 +133,14 @@ namespace ScottAlfter.CoinProfitabilityLibrary
         {
             WebClient wc = new WebClient();
             string homepage = wc.DownloadString(url_prefix + "/chain/" + chain_name);
-            string link = "";
+            double difficulty = 0;
             foreach (string line in homepage.Split(new char[] { '\n' }))
                 if (line.Contains("<tr>") && !line.Contains("<table"))
                 {
                     string[] fields = line.Split(new string[] { "<td>", "</td>", "<tr>", "</tr>" }, StringSplitOptions.RemoveEmptyEntries);
-                    link = fields[0].Substring(11);
-                    link = url_prefix + link.Substring(0, link.IndexOf("\""));
+                    difficulty = Convert.ToDouble(fields[4]);
                     break;
                 }
-            string blockinfo = wc.DownloadString(link);
-            double difficulty = 0;
-            foreach (string line in blockinfo.Split(new char[] { '\n' }))
-                if (line.Contains("Difficulty") && !line.Contains("Cumulative"))
-                    difficulty = Convert.ToDouble(line.Split(new char[] { ' ' })[1]);
             return difficulty;
         }
 

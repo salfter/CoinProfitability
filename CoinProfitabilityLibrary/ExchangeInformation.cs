@@ -61,7 +61,7 @@ namespace ScottAlfter.CoinProfitabilityLibrary
         private decimal GetExchangeRateCryptsy(string abbrev)
         {
             WebClient wc = new WebClient();
-            string data = wc.DownloadString("https://www.cryptsy.com/api.php?method=orderdata");
+            string data = wc.DownloadString("http://pubapi.cryptsy.com/api.php?method=orderdata");
             var jss = new JavaScriptSerializer();
             var table = jss.Deserialize<dynamic>(data);
             return Convert.ToDecimal(table["return"][abbrev]["buyorders"][0]["price"]);
