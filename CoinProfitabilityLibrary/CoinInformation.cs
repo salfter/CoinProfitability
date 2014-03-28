@@ -49,15 +49,42 @@ namespace ScottAlfter.CoinProfitabilityLibrary
         private decimal GetRewardAbe(string url_prefix, string chain_name)
         {
             WebClient wc = new WebClient();
-            string homepage = wc.DownloadString(url_prefix + "/chain/" + chain_name);
+            string homepage = wc.DownloadString(url_prefix + "/chain/" + chain_name+"?count=200");
             string link = "";
+            double diff_pow = 0;
+            double diff_pos = 0;
+            double diff = 0;
             foreach (string line in homepage.Split(new char[] { '\n' }))
                 if (line.Contains("<tr>") && !line.Contains("<table"))
                 {
                     string[] fields = line.Split(new string[] { "<td>", "</td>", "<tr>", "</tr>" }, StringSplitOptions.RemoveEmptyEntries);
-                    link = fields[0].Substring(11);
-                    link = url_prefix + link.Substring(0, link.IndexOf("\""));
-                    break;
+                    //link = fields[0].Substring(11);
+                    //link = url_prefix + link.Substring(0, link.IndexOf("\""));
+                    diff = Convert.ToDouble(fields[4]);
+                    if (diff_pow == 0) // first?
+                        diff_pow = diff;
+                    if (diff_pow * 100.0 < diff && diff_pos == 0) // current is at least 2 orders of magnitude greater than previous?
+                    {
+                        diff_pos = diff_pow;
+                        diff_pow = diff;
+                        break;
+                    }
+                    if (diff < diff_pow / 100.0 && diff_pos == 0) // current is at least 2 orders of magnitude less than previous?
+                    {
+                        diff_pos = diff;
+                        break;
+                    }
+                }
+            foreach (string line in homepage.Split(new char[] { '\n' })) // now find most recent proof-of-work block
+                if (line.Contains("<tr>") && !line.Contains("<table"))
+                {
+                    string[] fields = line.Split(new string[] { "<td>", "</td>", "<tr>", "</tr>" }, StringSplitOptions.RemoveEmptyEntries);
+                    if (Convert.ToDouble(fields[4]) == diff_pow)
+                    {
+                        link = fields[0].Substring(11);
+                        link = url_prefix + link.Substring(0, link.IndexOf("\""));
+                        break;
+                    }
                 }
             string blockinfo = wc.DownloadString(link);
             int tx_index = 0;
@@ -122,8 +149,32 @@ namespace ScottAlfter.CoinProfitabilityLibrary
 
         private double GetDifficultyAbe(string url_prefix, string chain_name)
         {
+            // saa 28 Mar 14: revised to properly work with proof-of-stake coins
             WebClient wc = new WebClient();
-            return Convert.ToDouble(wc.DownloadString(url_prefix + "/chain/" + chain_name + "/q/getdifficulty"));
+            string homepage = wc.DownloadString(url_prefix + "/chain/" + chain_name + "?count=200");
+            double diff_pow = 0;
+            double diff_pos = 0;
+            double diff = 0;
+            foreach (string line in homepage.Split(new char[] { '\n' }))
+                if (line.Contains("<tr>") && !line.Contains("<table"))
+                {
+                    string[] fields = line.Split(new string[] { "<td>", "</td>", "<tr>", "</tr>" }, StringSplitOptions.RemoveEmptyEntries);
+                    diff = Convert.ToDouble(fields[4]);
+                    if (diff_pow == 0) // first?
+                        diff_pow = diff;
+                    if (diff_pow * 100.0 < diff && diff_pos == 0) // current is at least 2 orders of magnitude greater than previous?
+                    {
+                        diff_pos = diff_pow;
+                        diff_pow = diff;
+                        break;
+                    }
+                    if (diff < diff_pow / 100.0 && diff_pos == 0) // current is at least 2 orders of magnitude less than previous?
+                    {
+                        diff_pos = diff;
+                        break;
+                    }
+                }
+            return diff_pow;
         }
 
         // workaround for explorer.litecoin.net's outdated Abe installation:
