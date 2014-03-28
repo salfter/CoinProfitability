@@ -33,6 +33,7 @@ namespace ScottAlfter.CoinProfitabilityLibrary
         public string ExplorerType;
         public string DefaultHashRateUnit;
         public string Exchange;
+        public string ExchangeExtraData;
         public string Abbreviation;
         public string DefaultHashRate;
     }
@@ -59,6 +60,7 @@ namespace ScottAlfter.CoinProfitabilityLibrary
                         t.ExplorerChain = (string)k.GetValue("ExplorerChain");
                         t.DefaultHashRateUnit = (string)k.GetValue("DefaultHashRateUnit");
                         t.Exchange = (string)k.GetValue("Exchange");
+                        t.ExchangeExtraData = (string)k.GetValue("ExchangeExtraData");
                         t.Abbreviation = (string)k.GetValue("Abbreviation");
                         t.DefaultHashRate = (string)k.GetValue("DefaultHashRate");
                         Coins.Add(i, t);
