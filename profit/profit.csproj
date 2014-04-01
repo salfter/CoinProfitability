@@ -32,9 +32,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CoinProfitabilityLibrary">
-      <HintPath>..\CoinProfitabilityLibrary\bin\Release\CoinProfitabilityLibrary.dll</HintPath>
-    </Reference>
     <Reference Include="Gnu.Getopt">
       <HintPath>..\..\..\Visual Studio 2008\Projects\Gnu.Getopt\bin\Release\Gnu.Getopt.dll</HintPath>
     </Reference>
@@ -48,6 +45,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CoinProfitabilityLibrary\CoinProfitabilityLibrary.csproj">
+      <Project>{f496f99c-a09d-40a0-bc87-5662893fcbb3}</Project>
+      <Name>CoinProfitabilityLibrary</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
