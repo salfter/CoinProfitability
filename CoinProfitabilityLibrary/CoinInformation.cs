@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.IO;
+using System.Web.Script.Serialization;
 
 // Coin Profitability Calculator
 //
@@ -29,12 +30,16 @@ namespace ScottAlfter.CoinProfitabilityLibrary
 {
     public class CoinInformation
     {
+        private string CoinChooseJSONData = "";
+
         // wrapper to get current block reward
 
         public decimal GetReward(string chain_type, string url_prefix, string chain_name)
         {
             switch (chain_type)
             {
+                case "CoinChoose":
+                    return GetRewardCoinChoose(chain_name);
                 case "Abe":
                     return GetRewardAbe(url_prefix, chain_name);
                 case "BlockEx":
@@ -42,6 +47,24 @@ namespace ScottAlfter.CoinProfitabilityLibrary
                 default:
                     throw new ArgumentException("Block explorer type \"" + chain_type + "\" unknown");
             }
+        }
+
+        // get block reward from CoinChoose
+
+        private decimal GetRewardCoinChoose(string chain_name)
+        {
+            if (CoinChooseJSONData == "")
+            {
+                WebClient wc = new WebClient();
+                CoinChooseJSONData = wc.DownloadString("http://www.coinchoose.com/api.php?base=BTC");
+            }
+            string jsondata = CoinChooseJSONData;
+            var jss = new JavaScriptSerializer();
+            var table = jss.Deserialize<dynamic>(jsondata);
+            foreach (var row in table)
+                if (row["name"].ToLower() == chain_name.ToLower())
+                    return Convert.ToDecimal(row["reward"]);
+            return 0;
         }
 
         // get block reward from most recent block on an Abe blockchain explorer
@@ -125,6 +148,8 @@ namespace ScottAlfter.CoinProfitabilityLibrary
         {
             switch (chain_type)
             {
+                case "CoinChoose":
+                    return GetDifficultyCoinChoose(chain_name);
                 case "Abe":
                     double difficulty = -1;
                     try { difficulty = GetDifficultyAbe(url_prefix, chain_name); }
@@ -143,6 +168,24 @@ namespace ScottAlfter.CoinProfitabilityLibrary
                 default:
                     throw new ArgumentException("Block explorer type \"" + chain_type + "\" unknown");
             }
+        }
+
+        // get difficulty from CoinChoose
+
+        private double GetDifficultyCoinChoose(string chain_name)
+        {
+            if (CoinChooseJSONData == "")
+            {
+                WebClient wc = new WebClient();
+                CoinChooseJSONData = wc.DownloadString("http://www.coinchoose.com/api.php?base=BTC");
+            }
+            string jsondata = CoinChooseJSONData;
+            var jss = new JavaScriptSerializer();
+            var table = jss.Deserialize<dynamic>(jsondata);
+            foreach (var row in table)
+                if (row["name"].ToLower() == chain_name.ToLower())
+                    return Convert.ToDouble(row["difficulty"]);
+            return 0.0;
         }
 
         // get difficulty (only works with newer Abe servers)

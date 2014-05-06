@@ -29,6 +29,8 @@ namespace ScottAlfter.CoinProfitabilityLibrary
 {
     public class ExchangeInformation
     {
+        private string CryptsyOrderData = "";
+
         // exchange rate wrapper
 
         public decimal GetExchangeRate(string exchange, string abbrev)
@@ -62,16 +64,18 @@ namespace ScottAlfter.CoinProfitabilityLibrary
         {
             RegistrySettings rs = new RegistrySettings();
             WebClient wc = new WebClient();
-            string extra = null;
-            foreach (KeyValuePair<string, CoinInfo> i in rs.Coins)
-                if (i.Value.Abbreviation == abbrev)
-                    extra = i.Value.ExchangeExtraData;
-            if (extra == "")
-                extra = null;
+            //string extra = null;
+            //foreach (KeyValuePair<string, CoinInfo> i in rs.Coins)
+            //    if (i.Value.Abbreviation == abbrev)
+            //        extra = i.Value.ExchangeExtraData;
+            //if (extra == "")
+            //    extra = null;
             string url="http://pubapi.cryptsy.com/api.php?method=orderdata";
-            if (extra != null)
-                url = "http://pubapi.cryptsy.com/api.php?method=singleorderdata&marketid=" + extra;
-            string data = wc.DownloadString(url);
+            //if (extra != null)
+            //    url = "http://pubapi.cryptsy.com/api.php?method=singleorderdata&marketid=" + extra;
+            if (CryptsyOrderData == "")
+                CryptsyOrderData = wc.DownloadString(url);
+            string data = CryptsyOrderData;
             var jss = new JavaScriptSerializer();
             var table = jss.Deserialize<dynamic>(data);
             return Convert.ToDecimal(table["return"][abbrev]["buyorders"][0]["price"]);

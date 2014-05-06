@@ -1,4 +1,4 @@
-Is that altcoin you're considering more profitable than what you're currently mining? http://dustcoin.com/mining and http://www.coinchoose.com/ have some altcoins listed, but not all of them.  (For instance, neither of them have Yacoin listed.)  This little app I knocked together will tell you how much to expect.
+Is that altcoin you're considering more profitable than what you're currently mining? http://dustcoin.com/mining and http://www.coinchoose.com/ have some altcoins listed, but not all of them.  (For instance, neither of them have Bitgem listed.)  This little app I knocked together will tell you how much to expect.
 
 It needs these to do its calculation:
 
@@ -12,13 +12,13 @@ You most likely know your hashrate for SHA-256 and scrypt coins.  Difficulty is 
 
 I built this in Visual Studio 2012 Express against .NET Framework 4.0 (needed that version because it's the first that includes BigInteger support).  I've also tested it under Mono; its implementation of Decimal.ToString() is a bit different and needed some adjustment.  
 
-You can store configuration information for the coins of your choice in the registry, and to select a coin from a drop-down list.  A sample registry file (with configurations for five coins) is included.  Most items are self-explanatory.  Valid choices for ExplorerType are BlockEx (for blockexplorer.com and blockchain.info) and Abe (for block explorers running Abe).  DefaultHashRate is optional; you can set it to whatever's appropriate for your hardware.
+You can store configuration information for the coins of your choice in the registry, and to select a coin from a drop-down list.  A sample registry file (with configurations for seven coins) is included.  Most items are self-explanatory.  Valid choices for ExplorerType are BlockEx (for blockexplorer.com and blockchain.info), Abe (for block explorers running Abe), and CoinChoose (which you can use for the coins they follow).  DefaultHashRate is optional; you can set it to whatever's appropriate for your hardware.
 
-To select an exchange to use to convert a coin value to Bitcoinm just create a string value named Exchange.  You can set this to either Bter or Cryptsy.  Also, create another string value named Abbreviation; set it to the common three-character abbreviation (such as LTC for Litecoin). As long as the exchange you use supports the altcoin you want, either should work.  Implementation of support for other exchanges is left as an exercise for the reader.  For Bitcoin, the exchange rate is automatically set to 1.
+To select an exchange to use to convert a coin value to Bitcoin, just create a string value named Exchange.  You can set this to either Bter or Cryptsy.  Also, create another string value named Abbreviation; set it to the common three-character abbreviation (such as LTC for Litecoin). As long as the exchange you use supports the altcoin you want, either should work.  Implementation of support for other exchanges is left as an exercise for the reader.  For Bitcoin, the exchange rate is automatically set to 1.
 
 If you don't have any configuration stored in the registry, an error will pop up at startup.  On Windows, import CoinProfitability.reg.  On Linux, unpack CoinProfitability.reg.tar.gz in your home directory.  If you don't want any configuration information, you can ignore the error.
 
-This release introduces two new components: CoinProfitLibrary and profit.exe.  CoinProfitLibrary is a DLL that provides the core functionality for the two included apps.  profit.exe is a simple command-line client you can use in your scripts.  Help is available with the -h or --help options; read it to learn what you can do.  By default, it will calculate Bitcoin mining revenue per day.  It uses the same registry settings as the GUI.  
+This release provides three components: CoinProfitLibrary, CoinProfitability.exe, and profit.exe.  CoinProfitLibrary is a DLL that provides the core functionality for the two included apps.  profit.exe is a simple command-line client you can use in your scripts.  Help is available with the -h or --help options; read it to learn what you can do.  By default, it will calculate Bitcoin mining revenue per day.  It uses the same registry settings as the GUI.  
 
 profit.exe also depends on GNU Getopt .NET:
 
@@ -33,4 +33,4 @@ https://bitcointalk.org/index.php?topic=213580
 Scott Alfter
 scott@alfter.us
 
-(last updated: 31 May 2013)
+(last updated: 6 May 2014)
