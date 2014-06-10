@@ -54,10 +54,10 @@ namespace profit
             ExchangeInformation ei = new ExchangeInformation();
             CoinInfo inf = rs.Coins[szSelectedCoin];
             double diff = 0;
-            try { diff = ci.GetDifficulty(inf.ExplorerType, inf.ExplorerBaseURL, inf.ExplorerChain); }
+            try { diff = ci.GetDifficulty(inf.ExplorerType, inf.ExplorerBaseURL, inf.ExplorerChain, inf.Abbreviation); }
             catch { Console.WriteLine("Unable to fetch difficulty"); return -1; }
             decimal reward = 0;
-            try { reward = ci.GetReward(inf.ExplorerType, inf.ExplorerBaseURL, inf.ExplorerChain); }
+            try { reward = ci.GetReward(inf.ExplorerType, inf.ExplorerBaseURL, inf.ExplorerChain, inf.Abbreviation); }
             catch { Console.WriteLine("Unable to fetch reward"); return -1; }
             if (hashrate == 0)
                 switch (inf.DefaultHashRateUnit)

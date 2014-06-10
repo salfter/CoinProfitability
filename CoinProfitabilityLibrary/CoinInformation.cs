@@ -34,7 +34,7 @@ namespace ScottAlfter.CoinProfitabilityLibrary
 
         // wrapper to get current block reward
 
-        public decimal GetReward(string chain_type, string url_prefix, string chain_name)
+        public decimal GetReward(string chain_type, string url_prefix, string chain_name, string chain_abbrev)
         {
             switch (chain_type)
             {
@@ -44,11 +44,42 @@ namespace ScottAlfter.CoinProfitabilityLibrary
                     return GetRewardAbe(url_prefix, chain_name);
                 case "BlockEx":
                     return GetRewardBlockEx(url_prefix);
+                case "Coinplorer":
+                    return GetRewardCoinplorer(chain_abbrev);
                 default:
                     throw new ArgumentException("Block explorer type \"" + chain_type + "\" unknown");
             }
         }
 
+        // get block reward from CoinChoose
+
+        private decimal GetRewardCoinplorer(string chain_abbrev)
+        {
+            WebClient wc = new WebClient();
+            string data = wc.DownloadString("https://coinplorer.com/" + chain_abbrev.ToUpper());
+            bool bTable = false;
+            bool bStatistics = false;
+            bool bReward = false;
+            decimal dReward = (decimal)0.0;
+            foreach (string line in data.Split(new char[] { '\n' }))
+            {
+                if (bReward)
+                {
+                    dReward = Convert.ToDecimal(line.Split(new string[] { "<td>", "</td>" }, StringSplitOptions.RemoveEmptyEntries)[1]);
+                    break;
+                }
+                if (line.Contains("<table"))
+                    bTable = true;
+                if (line.Contains("</table"))
+                    bTable = bStatistics = false;
+                if (line.Contains("<th") && line.Contains("Statistics") && bTable)
+                    bStatistics = true;
+                if (line.Contains("<td") && line.Contains("Block reward") && bStatistics)
+                    bReward = true;
+            }
+            return dReward;
+        }
+        
         // get block reward from CoinChoose
 
         private decimal GetRewardCoinChoose(string chain_name)
@@ -83,7 +114,8 @@ namespace ScottAlfter.CoinProfitabilityLibrary
                     string[] fields = line.Split(new string[] { "<td>", "</td>", "<tr>", "</tr>" }, StringSplitOptions.RemoveEmptyEntries);
                     //link = fields[0].Substring(11);
                     //link = url_prefix + link.Substring(0, link.IndexOf("\""));
-                    diff = Convert.ToDouble(fields[4]);
+                    try { diff = Convert.ToDouble(fields[4]); }
+                    catch { }
                     if (diff_pow == 0) // first?
                         diff_pow = diff;
                     if (diff_pow * 100.0 < diff && diff_pos == 0) // current is at least 2 orders of magnitude greater than previous?
@@ -102,12 +134,16 @@ namespace ScottAlfter.CoinProfitabilityLibrary
                 if (line.Contains("<tr>") && !line.Contains("<table"))
                 {
                     string[] fields = line.Split(new string[] { "<td>", "</td>", "<tr>", "</tr>" }, StringSplitOptions.RemoveEmptyEntries);
-                    if (Convert.ToDouble(fields[4]) == diff_pow)
+                    try
                     {
-                        link = fields[0].Substring(11);
-                        link = url_prefix + link.Substring(0, link.IndexOf("\""));
-                        break;
+                        if (Convert.ToDouble(fields[4]) == diff_pow)
+                        {
+                            link = fields[0].Substring(11);
+                            link = url_prefix + link.Substring(0, link.IndexOf("\""));
+                            break;
+                        }
                     }
+                    catch { }
                 }
             string blockinfo = wc.DownloadString(link);
             int tx_index = 0;
@@ -144,7 +180,7 @@ namespace ScottAlfter.CoinProfitabilityLibrary
 
         // wrapper to get current difficulty
 
-        public double GetDifficulty(string chain_type, string url_prefix, string chain_name)
+        public double GetDifficulty(string chain_type, string url_prefix, string chain_name, string chain_abbrev)
         {
             switch (chain_type)
             {
@@ -165,9 +201,40 @@ namespace ScottAlfter.CoinProfitabilityLibrary
                         throw new InvalidDataException("Can't get difficulty from " + url_prefix);
                 case "BlockEx":
                     return GetDifficultyBlockEx(url_prefix);
+                case "Coinplorer":
+                    return GetDifficultyCoinplorer(chain_abbrev);
                 default:
                     throw new ArgumentException("Block explorer type \"" + chain_type + "\" unknown");
             }
+        }
+
+        // get difficulty from Coinplorer
+
+        private double GetDifficultyCoinplorer(string chain_abbrev)
+        {
+            WebClient wc = new WebClient();
+            string data = wc.DownloadString("https://coinplorer.com/" + chain_abbrev.ToUpper());
+            bool bTable = false;
+            bool bStatistics = false;
+            bool bDifficulty = false;
+            double dDifficulty = 0.0;
+            foreach (string line in data.Split(new char[] { '\n' }))
+            {
+                if (bDifficulty)
+                {
+                    dDifficulty = Convert.ToDouble(line.Split(new string[] { "<td>", "</td>" }, StringSplitOptions.RemoveEmptyEntries)[1]);
+                    break;
+                }
+                if (line.Contains("<table"))
+                    bTable = true;
+                if (line.Contains("</table"))
+                    bTable = bStatistics= false;
+                if (line.Contains("<th") && line.Contains("Statistics") && bTable)
+                    bStatistics = true;
+                if (line.Contains("<td") && line.Contains("Difficulty") && bStatistics)
+                    bDifficulty = true;
+            }
+            return dDifficulty;
         }
 
         // get difficulty from CoinChoose
@@ -202,7 +269,8 @@ namespace ScottAlfter.CoinProfitabilityLibrary
                 if (line.Contains("<tr>") && !line.Contains("<table"))
                 {
                     string[] fields = line.Split(new string[] { "<td>", "</td>", "<tr>", "</tr>" }, StringSplitOptions.RemoveEmptyEntries);
-                    diff = Convert.ToDouble(fields[4]);
+                    try { diff = Convert.ToDouble(fields[4]); }
+                    catch { }
                     if (diff_pow == 0) // first?
                         diff_pow = diff;
                     if (diff_pow * 100.0 < diff && diff_pos == 0) // current is at least 2 orders of magnitude greater than previous?
@@ -232,7 +300,8 @@ namespace ScottAlfter.CoinProfitabilityLibrary
                 if (line.Contains("<tr>") && !line.Contains("<table"))
                 {
                     string[] fields = line.Split(new string[] { "<td>", "</td>", "<tr>", "</tr>" }, StringSplitOptions.RemoveEmptyEntries);
-                    difficulty = Convert.ToDouble(fields[4]);
+                    try { difficulty = Convert.ToDouble(fields[4]); }
+                    catch { }
                     break;
                 }
             return difficulty;

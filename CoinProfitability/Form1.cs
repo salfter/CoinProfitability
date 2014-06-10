@@ -151,9 +151,9 @@ namespace CoinProfitability
             CoinInfo i = rs.Coins[szCoinType];
             lblAbbrev.Text = lblRewardCurrency.Text = i.Abbreviation;
             lblExchangeRateCurrency.Text = "BTC/" + i.Abbreviation;
-            try { tbDifficulty.Text = ci.GetDifficulty(i.ExplorerType, i.ExplorerBaseURL, i.ExplorerChain).ToString(); }
+            try { tbDifficulty.Text = ci.GetDifficulty(i.ExplorerType, i.ExplorerBaseURL, i.ExplorerChain, i.Abbreviation).ToString(); }
             catch { tbDifficulty.Text = "Unavailable"; }
-            try { tbReward.Text = ci.GetReward(i.ExplorerType, i.ExplorerBaseURL, i.ExplorerChain).ToString(); }
+            try { tbReward.Text = ci.GetReward(i.ExplorerType, i.ExplorerBaseURL, i.ExplorerChain, i.Abbreviation).ToString(); }
             catch { tbReward.Text = "Unavailable"; }
             for (int c = 0; c < cbHashrateUnit.Items.Count; c++)
                 if (((Item)cbHashrateUnit.Items[c]).Name == i.DefaultHashRateUnit)
